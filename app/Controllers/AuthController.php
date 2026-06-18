@@ -16,16 +16,21 @@ class AuthController extends BaseController
 
     public function authenticate()
     {
-        // Dummy auth — ganti dengan call API kalau ada endpoint login
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
 
-        // TODO: ganti kondisi ini dengan verifikasi ke API
-        if ($username === 'admin' && $password === 'admin123') {
+        $model = new \App\Models\UserModel();
+        
+        $user = $model->where('username', $username)->first();
+
+        if ($user && $user['password'] === $password) {
+            
             session()->set([
                 'logged_in' => true,
-                'username'  => $username,
+                'username'  => $user['username'],
+                'role'      => $user['role'], 
             ]);
+            
             return redirect()->to(base_url('obat'));
         }
 
