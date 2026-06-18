@@ -139,6 +139,9 @@ class KasirController extends BaseController
                     'address'    => $alamatLengkap,
                 ],
             ],
+            'callbacks' => [
+                'finish' => base_url('pesanan/sukses'),
+            ],
         ];
 
         $client = \Config\Services::curlrequest();
