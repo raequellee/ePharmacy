@@ -26,7 +26,7 @@ class AuthController extends BaseController
                 'logged_in' => true,
                 'username'  => $username,
             ]);
-            return redirect()->to('/obat');
+            return redirect()->to(base_url('obat'));
         }
 
         return redirect()->to('/login')->with('error', 'Username atau password salah.');
