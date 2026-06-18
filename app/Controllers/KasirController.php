@@ -139,9 +139,6 @@ class KasirController extends BaseController
                     'address'    => $alamatLengkap,
                 ],
             ],
-            'callbacks' => [
-                'finish' => base_url('pesanan/sukses'),
-            ],
         ];
 
         $client = \Config\Services::curlrequest();
@@ -160,16 +157,31 @@ class KasirController extends BaseController
             $body = json_decode($response->getBody(), true);
 
             if (isset($body['redirect_url'])) {
+                // Simpan ke database
+                $model = new \App\Models\PesananModel();
+                $model->insert([
+                    'order_id'      => $orderId,
+                    'nama_obat'     => $obat['nama'] ?? '-',
+                    'harga_obat'    => $obat['harga'] ?? 50000,
+                    'nama_penerima' => $nama,
+                    'no_hp'         => $hp,
+                    'alamat_lengkap'=> $alamatLengkap,
+                    'kurir'         => $kurir,
+                    'ongkir'        => (int)$ongkir,
+                    'total'         => $total,
+                    'status'        => 'pending',
+                ]);
+
                 session()->set('order_id', $orderId);
                 session()->set('kurir', $kurir);
                 session()->set('nama_penerima', $nama);
                 session()->set('alamat_lengkap', $alamatLengkap);
                 return redirect()->to($body['redirect_url']);
             } else {
-                return redirect()->back()->withInput()->with('error', 'Gagal membuat transaksi: ' . ($body['error_messages'][0] ?? 'Unknown error'));
+                return redirect()->back()->with('error', 'Gagal membuat transaksi: ' . ($body['error_messages'][0] ?? 'Unknown error'));
             }
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Koneksi ke Midtrans gagal: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Koneksi ke Midtrans gagal: ' . $e->getMessage());
         }
     }
 
