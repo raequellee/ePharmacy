@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — ePharmacy</title>
+    <title>Register — ePharmacy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
@@ -21,35 +21,30 @@
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-triangle"></i> <?= session()->getFlashdata('error') ?>
                 </div>
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle"></i> <?= session()->getFlashdata('success') ?>
-                </div>
-            <?php endif; ?>
             <?php endif; ?>
 
-            <form method="POST" action="<?= base_url('login') ?>">
+            <form method="POST" action="<?= base_url('register') ?>">
                 <?= csrf_field() ?>
                 <div class="mb-3">
                     <label class="form-label">Username</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
+                        <input type="text" name="username" class="form-control" placeholder="Buat username baru" required>
                     </div>
                 </div>
                 <div class="mb-4">
                     <label class="form-label">Password</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
+                        <input type="password" name="password" class="form-control" placeholder="Buat password baru" required>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-box-arrow-in-right"></i> Login
+                    <i class="bi bi-person-plus"></i> Register
                 </button>
                 <div class="text-center small mt-3">
-                    <span class="text-muted">Belum punya akun?</span> 
-                        <a href="<?= base_url('register') ?>" class="text-decoration-none fw-bold">Daftar disini</a>
+                    <span class="text-muted">Sudah punya akun?</span> 
+                        <a href="<?= base_url('login') ?>" class="text-decoration-none fw-bold">Login disini</a>
                 </div>
             </form>
         </div>

@@ -42,4 +42,24 @@ class AuthController extends BaseController
         session()->destroy();
         return redirect()->to('/login');
     }
+
+    public function register()
+    {
+        return view('auth/register');
+    }
+
+    public function processRegister()
+    {
+        $model = new \App\Models\UserModel();
+        
+        $data = [
+            'username' => $this->request->getPost('username'),
+            'password' => $this->request->getPost('password'),
+            'role'     => 'user' 
+        ];
+
+        $model->insert($data);
+
+        return redirect()->to('/login')->with('success', 'Akun berhasil dibuat! Silakan login.');
+    }
 }

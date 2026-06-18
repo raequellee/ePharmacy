@@ -8,6 +8,9 @@ $routes->get('login',          'AuthController::index');
 $routes->post('login',         'AuthController::authenticate');
 $routes->get('logout',         'AuthController::logout');
 
+$routes->get('register', 'AuthController::register');
+$routes->post('register', 'AuthController::processRegister');
+
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/',                  'GudangController::index');
     $routes->get('obat',               'GudangController::index');
