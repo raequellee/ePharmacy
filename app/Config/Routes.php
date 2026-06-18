@@ -16,6 +16,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('pesanan/konfirmasi',  'KasirController::index');
     $routes->post('pesanan/cek-ongkir', 'KasirController::cekOngkir');
     $routes->post('pesanan/bayar',      'KasirController::bayar');
+    $routes->get('pesanan/sukses', 'KasirController::sukses');
 
     $routes->get('pengiriman',                'PengirimanController::index');
     $routes->get('pengiriman/(:alphanum)',     'PengirimanController::lacak/$1');

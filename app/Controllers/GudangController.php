@@ -16,9 +16,9 @@ class GudangController extends BaseController
         $client = \Config\Services::curlrequest();
 
         if (!empty($keyword)) {
-            $url_api = 'https://api.fda.gov/drug/label.json?search=openfda.brand_name:"' . urlencode($keyword) . '"&limit=12';
+            $url_api = 'https://api.fda.gov/drug/label.json?search=openfda.brand_name:"' . urlencode($keyword) . '"&limit=30';
         } else {
-            $url_api = 'https://api.fda.gov/drug/label.json?search=_exists_:openfda.brand_name&limit=12';
+            $url_api = 'https://api.fda.gov/drug/label.json?search=_exists_:openfda.brand_name&limit=30';
         }
 
         try {
@@ -42,13 +42,19 @@ class GudangController extends BaseController
 
     public function pesan()
     {
-        // Simpan obat yang dipilih ke session
+        $obatId   = $this->request->getPost('obat_id');
+        $namaObat = $this->request->getPost('nama_obat');
+
+        // Harga pseudo-acak tapi konsisten, berdasarkan ID obat
+        $hash  = crc32($obatId ?: $namaObat);
+        $harga = 15000 + ($hash % 14) * 5000; // hasil: antara Rp 15.000 - Rp 80.000
+
         $obat = [
-            'id'           => $this->request->getPost('obat_id'),
-            'nama'         => $this->request->getPost('nama_obat'),
+            'id'           => $obatId,
+            'nama'         => $namaObat,
             'manufacturer' => $this->request->getPost('manufacturer'),
             'route'        => $this->request->getPost('route'),
-            'harga'        => 50000, // dummy harga karena FDA tidak ada harga
+            'harga'        => $harga,
         ];
 
         session()->set('obat_dipilih', $obat);

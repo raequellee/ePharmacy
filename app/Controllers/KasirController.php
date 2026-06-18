@@ -11,9 +11,20 @@ class KasirController extends BaseController
             return redirect()->to(base_url('obat'))->with('error', 'Pilih obat terlebih dahulu.');
         }
 
+        $obatId     = $obat['id'] ?? null;
+        $lastObatId = session()->get('obat_id_terakhir');
+
+        if ($obatId !== $lastObatId) {
+            // obat yang dipilih beda dari sebelumnya, reset data ongkir lama
+            session()->remove('alamat');
+            session()->remove('ongkir_list');
+            session()->set('obat_id_terakhir', $obatId);
+        }
+
         $data = [
             'obat'        => $obat,
             'ongkir_list' => session()->get('ongkir_list') ?? [],
+            'alamat'      => session()->get('alamat') ?? [],
             'error'       => null,
         ];
 
@@ -27,9 +38,9 @@ class KasirController extends BaseController
         $apiKey  = getenv('KOMERCE_SHIPPING_KEY');
 
         try {
-            $response = $client->request('GET', 'https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
-                'headers'     => ['x-api-key' => $apiKey],
-                'query'       => ['keyword' => $keyword],
+            $response = $client->request('GET', 'https://rajaongkir.komerce.id/api/v1/destination/domestic-destination', [
+                'headers'     => ['key' => $apiKey],
+                'query'       => ['search' => $keyword, 'limit' => 10, 'offset' => 0],
                 'timeout'     => 10,
                 'http_errors' => false,
             ]);
@@ -43,6 +54,8 @@ class KasirController extends BaseController
     {
         $origin      = $this->request->getPost('origin');
         $destination = $this->request->getPost('destination');
+        $originLabel = $this->request->getPost('origin_label_text');
+        $destLabel   = $this->request->getPost('destination_label_text');
         $weight      = $this->request->getPost('weight') ?? 300;
 
         $client  = \Config\Services::curlrequest();
@@ -57,7 +70,7 @@ class KasirController extends BaseController
                     'origin'      => $origin,
                     'destination' => $destination,
                     'weight'      => (int)$weight,
-                    'courier'     => 'jne:j&t:sicepat',
+                    'courier'     => 'jne:jnt:sicepat',
                     'price'       => 'lowest',
                 ],
                 'timeout'     => 15,
@@ -69,9 +82,11 @@ class KasirController extends BaseController
             if ($response->getStatusCode() == 200) {
                 session()->set('ongkir_list', $body['data'] ?? []);
                 session()->set('alamat', [
-                    'origin'      => $origin,
-                    'destination' => $destination,
-                    'weight'      => $weight,
+                    'origin'            => $origin,
+                    'destination'       => $destination,
+                    'weight'            => $weight,
+                    'origin_label'      => $originLabel,
+                    'destination_label' => $destLabel,
                 ]);
             } else {
                 session()->setFlashdata('error', 'Gagal cek ongkir: ' . ($body['meta']['message'] ?? 'Unknown error'));
@@ -124,6 +139,9 @@ class KasirController extends BaseController
                     'address'    => $alamatLengkap,
                 ],
             ],
+            'callbacks' => [
+                'finish' => base_url('pesanan/sukses'),
+            ],
         ];
 
         $client = \Config\Services::curlrequest();
@@ -148,10 +166,21 @@ class KasirController extends BaseController
                 session()->set('alamat_lengkap', $alamatLengkap);
                 return redirect()->to($body['redirect_url']);
             } else {
-                return redirect()->back()->with('error', 'Gagal membuat transaksi: ' . ($body['error_messages'][0] ?? 'Unknown error'));
+                return redirect()->back()->withInput()->with('error', 'Gagal membuat transaksi: ' . ($body['error_messages'][0] ?? 'Unknown error'));
             }
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Koneksi ke Midtrans gagal: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Koneksi ke Midtrans gagal: ' . $e->getMessage());
         }
+    }
+
+    public function sukses()
+    {
+        $orderId = $this->request->getGet('order_id');
+        $status  = $this->request->getGet('transaction_status');
+
+        return view('pesanan/sukses', [
+            'order_id' => $orderId,
+            'status'   => $status,
+        ]);
     }
 }

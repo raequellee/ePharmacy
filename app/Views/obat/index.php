@@ -5,7 +5,7 @@
     <h4 class="fw-bold"><i class="bi bi-search"></i> Cari Obat</h4>
 </div>
 
-<form method="GET" action="<?= site_url('obat/search') ?>" class="mb-4">
+<form method="GET" action="<?= site_url('obat') ?>" class="mb-4">
     <div class="input-group">
         <input type="text" name="q" class="form-control form-control-lg"
                placeholder="Cari nama obat..." value="<?= esc($keyword ?? '') ?>">
